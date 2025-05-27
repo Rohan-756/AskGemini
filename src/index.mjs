@@ -20,18 +20,37 @@ client.on("ready", () => {
 const PREFIX = "#";
 
 
+function splitMessage(text, maxLength = 2000) {
+    const chunks = [];
+    let current = '';
+
+    for (const line of text.split('\n')) {
+        if ((current + '\n' + line).length > maxLength) {
+            chunks.push(current);
+            current = line;
+        } else {
+            current += '\n' + line;
+        }
+    }
+
+    if (current) chunks.push(current);
+    return chunks;
+}
+
 client.on("message", async (message) => {
     if (message.author.bot || !message.content.startsWith(PREFIX))
         return;
     const [cmd_type, ...args] = message.content.trim().substring(PREFIX.length).split(" ");
-    if(cmd_type!="ask")
+    if (cmd_type != "ask")
         return;
     const query = args.join(" ");
-
     const response = await gemini.models.generateContent({
         model: "gemini-2.0-flash",
         contents: query,
     });
 
-    message.channel.send(response.text);
+    const parts = splitMessage(response.text);
+    for (const part of parts) {
+        await message.channel.send(part)
+    }
 })

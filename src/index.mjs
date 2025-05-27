@@ -10,10 +10,15 @@ client.on("ready",()=>{
     console.log(`${client.user.username} has logged in!`);
 })
 
-
+const PREFIX="#";
 
 client.on("message",async(message)=>{
-  if(message.author.bot)
-    return;
-  message.reply("Hello!");
+    if(message.author.bot || !message.content.startsWith(PREFIX))
+        return;
+    const [cmd_type, ...args]=message.content.trim().substring(PREFIX.length).split(" ");
+    if(cmd_type!="ask")
+        return;
+    const query=args.join(" ");
+    console.log(cmd_type+" "+query);
+    message.reply(cmd_type+query);
 })
